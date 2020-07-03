@@ -1,0 +1,6 @@
+.DS_Store
+*.sh
+build/*
+dist/*
+release/*
+Licence.txt
