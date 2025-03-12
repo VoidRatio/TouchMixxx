@@ -317,10 +317,10 @@ class ToucuhMixxxJog extends components.Encoder{
 
   browseMode(value)
   {
-    if ( this.jogTimer !== 0 ) return; // we are timed out return
+    if ( this.jogTimer) return; // we are timed out return
 
-      this.jogTimer = engine.beginTimer(this.browseTimeout, function(){
-        this.jogTimer = 0;
+      this.jogTimer = engine.beginTimer(this.browseTimeout, () =>{
+        this.jogTimer = undefined;
       }, true); //one shot
 
     if (value == 0) {
@@ -453,7 +453,7 @@ class TouchMixxxVUMeter{
       print("Error: VUMeter group undefined");
       return;
     }
-    
+
     this.connections = [];
 
     if(options.midiR === undefined)
