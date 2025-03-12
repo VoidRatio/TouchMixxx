@@ -453,23 +453,20 @@ class TouchMixxxVUMeter{
       print("Error: VUMeter group undefined");
       return;
     }
-  
-    this.midiL = options.midiL;
-    this.midiR = options.midiR || options.midiL
-
+    
     this.connections = [];
 
-    if(this.midiR === undefined)
+    if(options.midiR === undefined)
     {
-      this.connections[0] = engine.makeConnection(this.group, 'VuMeter', function(value){
-        midi.sendShortMsg(this.midiL[0], this.midiL[1], value * 128);
+      this.connections[0] = engine.makeConnection(options.group, 'VuMeter', function(value){
+        midi.sendShortMsg(options.midiL[0], options.midiL[1], value * 128);
       });
     }else{
-      this.connections[0] = engine.makeConnection(this.group, 'VuMeterL', function(value){
-        midi.sendShortMsg(this.midiL[0], this.midiL[1], value * 128);
+      this.connections[0] = engine.makeConnection(options.group, 'VuMeterL', function(value){
+        midi.sendShortMsg(options.midiL[0], options.midiL[1], value * 128);
       });
-      this.connections[1] = engine.makeConnection(this.group, 'VuMeterR', function(value){
-        midi.sendShortMsg(this.midiR[0], this.midiR[1], value * 128);
+      this.connections[1] = engine.makeConnection(options.group, 'VuMeterR', function(value){
+        midi.sendShortMsg(options.midiR[0], options.midiR[1], value * 128);
       });
     }
   }
@@ -831,7 +828,7 @@ class TouchMixxxMaster{
       }
     });
 
-  /* toggle FX 1 for all samplers */
+  /* toggle FX 2 for all samplers */
     this.samplerFx2Enable = new components.Button({
       midi: [0xB0 + this.midiChannel, this.ctrls.samplerFx2Enable],
       group: '[EffectRack1_EffectUnit2]',
