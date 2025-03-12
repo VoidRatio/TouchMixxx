@@ -59,6 +59,29 @@ TouchMixxx.shutdown = function() {
 };
 
 
+// Pollyfill for Function.bind() which does not appear to be supported
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Function/bind
+
+if (!Function.prototype.bind) (function(){
+  var slice = Array.prototype.slice;
+  Function.prototype.bind = function() {
+    var thatFunc = this, thatArg = arguments[0];
+    var args = slice.call(arguments, 1);
+    if (typeof thatFunc !== 'function') {
+      // closest thing possible to the ECMAScript 5
+      // internal IsCallable function
+      throw new TypeError('Function.prototype.bind - ' +
+             'what is trying to be bound is not callable');
+    }
+    return function(){
+      var funcArgs = args.concat(slice.call(arguments))
+      return thatFunc.apply(thatArg, funcArgs);
+    };
+  };
+})();
+
+
+
 /**
  * 
  * TouchMixxxContainer
@@ -459,6 +482,11 @@ class TouchMixxxVUMeter{
 class TouchMixxxPadBank extends TouchMixxxContainer{
   constructor(options){
     super(options)
+    this.midiChannel = options.midiChannel
+    this.group = options.group
+    this.modeOffset = options.modeOffset
+    this.padOffset = options.padOffset
+
     this.numberOfPads = 8;
     this.padModes = {
       mode1: this.modeOffset,
@@ -1030,7 +1058,7 @@ class TouchMixxxDeck extends TouchMixxxContainer{
     {
       ctrl.input(channel, control, value, status, group);
     }else{
-      print("Error: not control found for Channel "+ channel +", Status " + status + ", Control " + control);
+      print("Error: control not found for Channel "+ channel +", Status " + status + ", Control " + control);
     }
   }
 
