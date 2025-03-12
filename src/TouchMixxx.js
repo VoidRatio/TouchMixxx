@@ -5,7 +5,7 @@ var TouchMixxx = {
   decks:[],
   addDeck: function(midiChannel)
   {
-    this.decks.push(new Deck(midiChannel,"[Channel" + (midiChannel + 1)  + "]") );
+    this.decks.push(new TouchMixxxDeck(midiChannel,"[Channel" + (midiChannel + 1)  + "]") );
     //print("deck " + (midiChannel + 1) );
   },
 };
@@ -14,7 +14,7 @@ var TouchMixxx = {
 TouchMixxx.init = function() {
 
     //Create our master section
-     this.master = new Master();
+     this.master = new TouchMixxxMaster();
      //print("master");
      //And our decks
      for(var deckNumber = 0; deckNumber  < this.numberOfDecks ; deckNumber ++)
@@ -57,6 +57,12 @@ TouchMixxx.loadPage = function(channel, control, value, status, group)
 TouchMixxx.shutdown = function() {
     // send whatever MIDI messages you need to turn off the lights of your controller
 };
+
+
+/**
+ * 
+ * TouchMixxxContainer
+ */
 
 
 class TouchMixxxContainer{
@@ -146,15 +152,18 @@ class TouchMixxxContainer{
 
 }
 
-class Pot extends components.Pot{
+/**
+ * 
+ * TouchMixxxPot 
+ */
+
+class TouchMixxxPot extends components.Pot{
   constructor(options){
     super(options)
     this.centerZero = options.centerZero || false;
     this.updateLock = false;
     this.timer = 0;
     this.updateLockDelay = 500;
-
-
   }
   
   input(channel, control, value, status, group)
@@ -195,14 +204,15 @@ class Pot extends components.Pot{
         so we are getting the paremeer direct and scaling here
       */
      this.send(this.inGetParameter() * this.max);
+
+   ///  this.send(this.outValueScale()  );
       }else{
          //print("updatelocked");
       }
   };
 
-  connect ()
+  connect()
   {
-      components.Pot.prototype.connect.call(this);
      if (undefined !== this.group &&
           undefined !== this.outKey &&
           undefined !== this.output &&
@@ -235,10 +245,12 @@ class Pot extends components.Pot{
 
 }
 
+/**
+ * ToucuhMixxxJog
+ */
 
 
-
-class Jog extends components.Encoder{
+class ToucuhMixxxJog extends components.Encoder{
   constructor(options){
     super(options);
     this.mode = "track";
@@ -369,14 +381,12 @@ class Jog extends components.Encoder{
 }
 
 
-
-
 /*
-SlideSwitch uses TouchOSc's fader but gives it defined steps by rounding the
-incomming value to intervals and feeding that back to TouchOSC
+    TouchMixxxSlideSwitch uses TouchOSc's fader but gives it defined steps by rounding the
+    incomming value to intervals and feeding that back to TouchOSC
 */
 
-class SlideSwitch extends Pot{
+class TouchMixxxSlideSwitch extends TouchMixxxPot{
   constructor(options){
     super(options)
     this.lower = options.lower || 0;
@@ -404,7 +414,11 @@ class SlideSwitch extends Pot{
   }
 }
 
-class VUMeter{
+/*
+  TouchMixxxVUMeter
+*/
+
+class TouchMixxxVUMeter{
   constructor(options){
     if(options.midiL === undefined)
     {
@@ -438,7 +452,11 @@ class VUMeter{
   }
 }
 
-class PadBank extends TouchMixxxContainer{
+/*
+ TouchMixxxPadBank
+*/
+
+class TouchMixxxPadBank extends TouchMixxxContainer{
   constructor(options){
     super(options)
     this.numberOfPads = 8;
@@ -680,7 +698,11 @@ class PadBank extends TouchMixxxContainer{
 }
 
 
-class Master{
+/*
+  TouchMixxxMaster
+*/
+
+class TouchMixxxMaster{
   constructor(midiChannel, group, numberOfSamplers){
     this.midiChannel = midiChannel || 0x09;
     this.group = group || '[Master]';
@@ -699,21 +721,21 @@ class Master{
 
     for( let knob in this.ctrls.knobs)
     {
-      this[knob] = new Pot({
+      this[knob] = new TouchMixxxPot({
         midi: [0xB0 + this.midiChannel, this.ctrls.knobs[knob]],
         key: knob,
         group: this.group,
       });
     }
 
-    this.headMix = new Pot({
+    this.headMix = new TouchMixxxPot({
       midi: [0xB0 + this.midiChannel, this.ctrls.headMix],
       key: 'headMix',
       group: this.group,
       centerZero: true,
     });
 
-    this.crossfader = new Pot({
+    this.crossfader = new TouchMixxxPot({
       midi: [0xB0 + this.midiChannel, this.ctrls.crossfader],
       key: 'crossfader',
       group: this.group,
@@ -727,7 +749,7 @@ class Master{
       key: 'group_' + this.group + '_enable',
     });
 
-    this.fxMix1 = new Pot({
+    this.fxMix1 = new TouchMixxxPot({
       midi: [0xB0 + this.midiChannel, this.ctrls.fxMix1],
       key: 'mix',
       group: '[EffectRack1_EffectUnit1]',
@@ -740,14 +762,14 @@ class Master{
       key: 'group_' + this.group + '_enable',
     });
 
-    this.fxMix2 = new Pot({
+    this.fxMix2 = new TouchMixxxPot({
       midi: [0xB0 + this.midiChannel, this.ctrls.fxMix2],
       key: 'mix',
       group: '[EffectRack1_EffectUnit2]',
     });
 
   /* adjusts the volume for all samplers*/
-    this.sampleVolume = new Pot({
+    this.sampleVolume = new TouchMixxxPot({
       midi: [0xB0 + this.midiChannel, this.ctrls.sampleVolume],
       key: 'volume',
     group: '[Sampler1]', //hack to force an outgoing connection...
@@ -801,7 +823,7 @@ class Master{
       }
     });
 
-    this.vumeter = new VUMeter({
+    this.vumeter = new TouchMixxxVUMeter({
       midiL:[0xB0 + this.midiChannel, this.ctrls.VUMeterL],
       midiR:[0xB0 + this.midiChannel, this.ctrls.VUMeterR],
       group: this.group,
@@ -810,7 +832,12 @@ class Master{
   }
 
 
-class Deck extends TouchMixxxContainer{
+  /*
+  TouchMixxxDeck
+
+  */
+
+class TouchMixxxDeck extends TouchMixxxContainer{
 
   constructor(midiChannel,group){
     super(group);
@@ -843,7 +870,7 @@ class Deck extends TouchMixxxContainer{
       group: this.group,
     }));
 
-    this.addComponent('orientation', new SlideSwitch({
+    this.addComponent('orientation', new TouchMixxxSlideSwitch({
       midi: [0xB0 + midiChannel, this.ctrlNumbers.orientation],
       group: this.group,
       key: 'orientation',
@@ -859,7 +886,7 @@ class Deck extends TouchMixxxContainer{
       type: components.Button.prototype.types.toggle,
     }));
 
-    this.addComponent('rate', new Pot({
+    this.addComponent('rate', new TouchMixxxPot({
           midi: [0xB0 + midiChannel, this.ctrlNumbers.rate],
           key: 'rate',
           group: this.group,
@@ -883,7 +910,7 @@ class Deck extends TouchMixxxContainer{
 
     for(let knob in this.ctrlNumbers.simpleKnobs)
     {
-      this.addComponent(knob, new Pot({
+      this.addComponent(knob, new TouchMixxxPot({
           midi: [0xB0 + midiChannel, this.ctrlNumbers.simpleKnobs[knob]],
           key: knob,
           group: this.group,
@@ -913,7 +940,7 @@ class Deck extends TouchMixxxContainer{
     var parameterNumber = 1;
     for(let parameter in this.ctrlNumbers.eq)
     {
-      this.components.eq.addComponent(parameter,  new Pot({
+      this.components.eq.addComponent(parameter,  new TouchMixxxPot({
            midi: [0xB0 + midiChannel, this.ctrlNumbers.eq[parameter]],
            group: '[EqualizerRack1_' + this.group + '_Effect1]',
            key: "parameter" + parameterNumber++ ,
@@ -924,21 +951,21 @@ class Deck extends TouchMixxxContainer{
       var parameterNumber = 1;
     for(let parameter in this.ctrlNumbers.qfx)
     {
-      this.components.qfx.addComponent(parameter, new Pot({
+      this.components.qfx.addComponent(parameter, new TouchMixxxPot({
            midi: [0xB0 + midiChannel, this.ctrlNumbers.qfx[parameter]],
            group: '[QuickEffectRack1_' + this.group + ']',
            key: "super" + parameterNumber++,
        }));
     }
 
-    this.addComponent('pads', new PadBank({
+    this.addComponent('pads', new TouchMixxxPadBank({
       midiChannel:  midiChannel,
       group: this.group,
       modeOffset: this.ctrlNumbers.padModeOffset,
       padOffset: this.ctrlNumbers.padOffset,
     }));
 
-    this.addComponent('jog', new Jog({
+    this.addComponent('jog', new ToucuhMixxxJog({
       midi: [0xB0 + midiChannel, this.ctrlNumbers.jog],
       group: this.group,
     }));
@@ -988,7 +1015,7 @@ class Deck extends TouchMixxxContainer{
       }
     }));
 
-    this.addComponent("vumeter" , new VUMeter({
+    this.addComponent("vumeter" , new TouchMixxxVUMeter({
       midiL:[0xB0 + midiChannel, this.ctrlNumbers.VUMeterL],
       group: this.group,
     }));
