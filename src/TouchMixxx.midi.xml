@@ -12,7 +12,7 @@
             <file functionprefix="" filename="lodash.mixxx.js"/>
             <file functionprefix="" filename="midi-components-0.0.js"/>
             <!-- TouchMixxx-Common.js needs to load first as it sets up our TouchMixxx global object -->
-            <file functionprefix="" filename="TouchMixxx-Common.js"/>
+            <!-- <file functionprefix="" filename="TouchMixxx-Common.js"/>
             <file functionprefix="" filename="TouchMixxx-Jog.js"/>
             <file functionprefix="" filename="TouchMixxx-Pot.js"/>
             <file functionprefix="" filename="TouchMixxx-SlideSwitch.js"/>
@@ -20,7 +20,8 @@
             <file functionprefix="" filename="TouchMixxx-VUMeter.js"/>
             <file functionprefix="" filename="TouchMixxx-Deck.js"/>
             <file functionprefix="" filename="TouchMixxx-Master.js"/>
-            <file functionprefix="TouchMixxx" filename="TouchMixxx-script.js"/>
+            <file functionprefix="TouchMixxx" filename="TouchMixxx-script.js"/> -->
+            <file functionprefix="TouchMixxx" filename="TouchMixxx.js"/>
         </scriptfiles>
         <controls>
           <control>
