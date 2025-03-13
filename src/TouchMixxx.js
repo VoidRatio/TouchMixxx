@@ -195,15 +195,13 @@ class TouchMixxxPot extends components.Pot{
   {
     //the eq controls ( and others ? ) seem to have a 0-2 range rather than 0-1
     //and we need 0-1 for TouchOSC. Make these configurable
-    console.log(value)
-
     if(this.hiRes){
-      return value * 0.25 * this.max
+      return script.absoluteNonLinInverse(value,0,1,4,0,127)
     }
+
     // center zero control from Mixxx give us -1 / +1 range but we need 0-1
     if(this.centerZero){
-      value = (value + 1) / 2;
-      return value * this.max;
+      return script.absoluteLinInverse(value,-1,1,0,127)
     }
 
     return value * this.max
@@ -218,29 +216,6 @@ class TouchMixxxPot extends components.Pot{
           this.connections[0] = engine.makeConnection(this.group, this.outKey, this.output.bind(this));
       }
   };
-
-  /*
-  component.Pot overwrites the trigger method of components.Component
-  ( because why would you send a midi message to a physical pot ?)
-  so we reinstate it for our virtual pots
-  */
-
-  // trigger()
-  // {
-  //  if ( this.timer !== 0)
-  //  {
-  //   engine.stopTimer(this.timer);
-  //   this.updateLock = false;
-  //   this.timer = 0;
-  //  }
-
-  //   if (this.connections[0] !== undefined) {
-  //       this.connections.forEach(function (conn) {
-  //           conn.trigger();
-  //       });
-  //   }
-  // };
-
 }
 
 /**
