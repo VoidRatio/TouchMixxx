@@ -6,7 +6,6 @@ var TouchMixxx = {
   addDeck: function(midiChannel)
   {
     this.decks.push(new TouchMixxxDeck(midiChannel,"[Channel" + (midiChannel + 1)  + "]") );
-    //print("deck " + (midiChannel + 1) );
   },
 };
 
@@ -15,20 +14,19 @@ TouchMixxx.init = function() {
 
     //Create our master section
      this.master = new TouchMixxxMaster();
-     //print("master");
      //And our decks
      for(var deckNumber = 0; deckNumber  < this.numberOfDecks ; deckNumber ++)
      {
       this.addDeck(deckNumber);
      }
-    print("TouchMixxx Init!");
+    console.log("TouchMixxx Init!");
 };
 
 /*
-  This shift buttons act global and are applied to all decks at once
+  This shift buttons act globally and are applied to all decks at once
   This is to allow use of Shift on the mixer page where we may not know
   which channel the control to be 'shifted' belongs to.
-  As of V1 this is pratically used but could be useful for kill switches etc
+  As of V1 this is isn't used used but could be useful for kill switches etc
 */
 TouchMixxx.shiftButton = function(channel, control, value, status, group)
 {
@@ -40,7 +38,7 @@ TouchMixxx.shiftButton = function(channel, control, value, status, group)
   }
 };
 
-
+// When we switch pages in TouchOSC update the controlls
 TouchMixxx.loadPage = function(channel, control, value, status, group)
 {
   this.decks.forEach(
@@ -83,16 +81,12 @@ if (!Function.prototype.bind) (function(){
 
 
 /**
- * 
  * TouchMixxxContainer
+ * 
+ * This lets us nest controls an simplifies the midi mapping
  */
 
-
 class TouchMixxxContainer{
-  // group = "";
-  // isShifted = false;
-  // components = {};
-
   constructor(group){
     this.group = group;
     this.isShifted = false;
@@ -122,11 +116,6 @@ class TouchMixxxContainer{
       var applyOperationTo = function (obj) {
         if (recursive && obj instanceof TouchMixxxContainer) {
             obj.forEachComponent(operation);
-        //AR :: Don't think we need arrays
-        // }else if (Array.isArray(obj)) {
-        //     obj.forEach(function (element) {
-        //         applyOperationTo(element);
-        //     });
         }else{
           operation.call(that, obj);
         }
@@ -176,8 +165,9 @@ class TouchMixxxContainer{
 }
 
 /**
- * 
  * TouchMixxxPot 
+ * 
+ * Unlike physical pots we what to update the TochOSC skin when the konbs in Mixxx are twiddled 
  */
 
 class TouchMixxxPot extends components.Pot{
@@ -188,13 +178,12 @@ class TouchMixxxPot extends components.Pot{
     this.updateLockDelay = 500;
     this.hiRes = options.hiRes || false
     this.centerZero = options.centerZero || false;
-
   }
   
   outValueScale(value)
   {
-    //the eq controls ( and others ? ) seem to have a 0-2 range rather than 0-1
-    //and we need 0-1 for TouchOSC. Make these configurable
+    //the eq controls ( and others ? ) seem to have a non-linear 0-4 range rather than 0-1
+    //and we need 0-1 for TouchOSC.
     if(this.hiRes){
       return script.absoluteNonLinInverse(value,0,1,4,0,127)
     }
@@ -221,8 +210,6 @@ class TouchMixxxPot extends components.Pot{
 /**
  * ToucuhMixxxJog
  */
-
-
 class ToucuhMixxxJog extends components.Encoder{
   constructor(options){
     super(options);
@@ -281,7 +268,7 @@ class ToucuhMixxxJog extends components.Encoder{
           //and beat jump length spinners as well as the library panes.
           //While this could be useful, it's kinda confusing and , more often than not,
           //results in setting odd loop lengths by mistake.
-          //SO we'll just go forward, ever forward....
+          //so we'll just go forward, ever forward....
             engine.setValue('[Library]', 'MoveFocusForward', true);
         }else{
           engine.setValue('[Library]', 'MoveUp', true);
@@ -305,7 +292,7 @@ class ToucuhMixxxJog extends components.Encoder{
       if (this.isShifted)
       {
         var scratchValue = (value) ? this.scratchRate : -this.scratchRate;
-        //enable scratch here playback so doesn't stop when shift is hit
+        //enable scratch here so playback doesn't stop when shift is hit
         engine.scratchEnable(deck, 128, 33+1/3, this.alpha, this.beta);
         engine.scratchTick(deck, scratchValue);
       } else {
@@ -326,7 +313,7 @@ class ToucuhMixxxJog extends components.Encoder{
       https://www.mixxx.org/wiki/doku.php/mixxxcontrols
       but used here
       https://www.mixxx.org/wiki/doku.php/midi_scripting#scratching_and_jog_wheels
-      this my need revisting
+      this may need revisting
       */
         var speed = (this.isShifted) ? this.searchSpeedFast : this.searchSpeedSlow;
         if (value == 0) {
@@ -355,7 +342,7 @@ class ToucuhMixxxJog extends components.Encoder{
 
 
 /*
-    TouchMixxxSlideSwitch uses TouchOSc's fader but gives it defined steps by rounding the
+    TouchMixxxSlideSwitch uses TouchOSC's fader but gives it defined steps by rounding the
     incomming value to intervals and feeding that back to TouchOSC
 */
 
@@ -382,7 +369,6 @@ class TouchMixxxSlideSwitch extends TouchMixxxPot{
         var inc = 1 / this.upper;
         value = value / this.upper;
         value = value - value % inc;
-        print(value)
         this.send(value * this.max);
   }
 }
@@ -448,7 +434,6 @@ class TouchMixxxPadBank extends TouchMixxxContainer{
     this.modeButtons.components.mode1.input(0, 0, 127, 0, 0);
   }
 
-
   addPad(padNumber,options)
   {
     options.midi = options.midi || [0xB0 + this.midiChannel, this.padOffset + padNumber];
@@ -464,7 +449,7 @@ class TouchMixxxPadBank extends TouchMixxxContainer{
       {
         button.off();
       }else{
-        button.on(); //switching here means we act as a radio group an one button is always active
+        button.on(); //switching here means we act as a radio group and one button is always active
       }
     });
 
@@ -618,10 +603,7 @@ class TouchMixxxPadBank extends TouchMixxxContainer{
           callback: callback,
           input: function(channel, control, value, status, group)
           {
-            /*
-            the TouchOSC midi buttons send a command on press and release we only respond
-            to a press which allows us to toggle
-            */
+            //The TouchOSC midi buttons send a command on press and release we only respond to a press which allows us to toggle
             if(value)
             {
               /*
@@ -638,13 +620,13 @@ class TouchMixxxPadBank extends TouchMixxxContainer{
           output: function()
           {
               midi.sendShortMsg(this.midi[0], this.midi[1], this.active * 127);
-              //for an led to indicate second function
+              //An led to indicate second function
               midi.sendShortMsg(this.midi[0], this.midi[1] + 4, this.isSecondFunction * 127);
           },
+
           toggle: function()
           {
-            /*we only toggle secondFunction if shift is held this allows it to
-            persist even when the button is not active*/
+            //we only toggle secondFunction if shift is held this allows it to persist even when the button is not active
             if(this.isShifted) this.isSecondFunction = ! this.isSecondFunction;
             this.active = ! this.active || (this.active && this.isShifted);
             this.output();
@@ -815,11 +797,10 @@ class TouchMixxxMaster{
   }
 
 
-  /*
-  TouchMixxxDeck
 
-  */
-
+/*
+TouchMixxxDeck
+*/
 class TouchMixxxDeck extends TouchMixxxContainer{
 
   constructor(midiChannel,group){
@@ -836,7 +817,8 @@ class TouchMixxxDeck extends TouchMixxxContainer{
       load: 0x11, 
       VUMeterL: 0x12,
       VUMeterR: 0x13,
-      padModeOffset:0x14/* 0x1B */, padOffset:0x1C /*0x23 */,
+      padModeOffset:0x14/* 0x1B */, 
+      padOffset:0x1C /*0x23 */,
       fx1Enable: 0x24, 
       fx2Enable: 0x25,
       orientation: 0x26, 
@@ -946,6 +928,7 @@ class TouchMixxxDeck extends TouchMixxxContainer{
        }));
     }
 
+    //FX KNOBS - ok just one for now
     this.addComponent('qfx', new TouchMixxxContainer(this.group));
       var parameterNumber = 1;
     for(let parameter in this.ctrlNumbers.qfx)
@@ -957,6 +940,7 @@ class TouchMixxxDeck extends TouchMixxxContainer{
        }));
     }
 
+    //PADS
     this.addComponent('pads', new TouchMixxxPadBank({
       midiChannel:  midiChannel,
       group: this.group,
@@ -964,13 +948,14 @@ class TouchMixxxDeck extends TouchMixxxContainer{
       padOffset: this.ctrlNumbers.padOffset,
     }));
 
+    //JOG WHEEL
     this.addComponent('jog', new ToucuhMixxxJog({
       midi: [0xB0 + midiChannel, this.ctrlNumbers.jog],
       group: this.group,
     }));
 
-    var thisDeck = this;
-
+    //BROWSE BUTTON
+    const thisDeck = this;
     this.addComponent('browse', {
       midi: [0xB0 + midiChannel, this.ctrlNumbers.browse],
       group: this.group,
@@ -989,6 +974,7 @@ class TouchMixxxDeck extends TouchMixxxContainer{
     });
 
 
+//LOAD BUTTON
     this.addComponent('load', new components.Button({
       midi: [0xB0 + midiChannel, this.ctrlNumbers.load],
       group: this.group,
@@ -1021,6 +1007,7 @@ class TouchMixxxDeck extends TouchMixxxContainer{
 
   }
 
+  // INPUT - delegates messages to controls
   input(channel, control, value, status, group)
   {
     print("midi channel= " + channel + " control= " + control + " value= " + value + " st= " + status + " group= " + group);
