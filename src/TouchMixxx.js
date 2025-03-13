@@ -179,11 +179,12 @@ class ToucuhMixxxJog extends components.Encoder {
     this.mode = "track";
     this.jogTimer = 0;
     this.timedOut = false
-    this.rateTimeout = 200;
+    this.rateTimeout = 50;
     this.browseTimeout = 75;
-    this.searchSpeedSlow = 1;
-    this.searchSpeedFast = 3;
-    this.scratchRate = 1;
+    this.searchSpeedSlow = 0.01;
+    this.searchSpeedFast = 0.05;
+    this.scratchRate = 1.5;
+    this.bendScale = 0.05;
     this.alpha = 1.0 / 8;
     this.beta = this.alpha / 32;
   }
@@ -197,6 +198,7 @@ class ToucuhMixxxJog extends components.Encoder {
   }
 
   toggleBrowse() {
+    this.timedOut = false
     this.mode = (this.mode == "track") ? "browse" : "track";
   }
 
@@ -246,23 +248,15 @@ class ToucuhMixxxJog extends components.Encoder {
   trackMode(value) {
     var currently_playing = engine.getValue(this.group, 'play');
     var deck = this.deckNumber();
-
+    let newVal = value - 64;
     if (currently_playing) {
+
       if (this.isShifted) {
-        var scratchValue = (value) ? this.scratchRate : -this.scratchRate;
-        //enable scratch here so playback doesn't stop when shift is hit
+        var scratchValue = (newVal > 0) ? this.scratchRate : -this.scratchRate;
         engine.scratchEnable(deck, 128, 33 + 1 / 3, this.alpha, this.beta);
         engine.scratchTick(deck, scratchValue);
-      } else {
-        if (this.timedOut) return; // we are timed out return
-          var action = (value) ? 'rate_temp_up' : 'rate_temp_down';
-          this.jogTimer = engine.beginTimer(this.rateTimeout, function () {
-            this.timedOut = false
-            engine.setValue(this.group, 'rate_temp_down', false);
-            engine.setValue(this.group, 'rate_temp_up', false);
-          }, true); //one shot
-        this.timedOut = true
-        engine.setValue(this.group, action, true);
+      }else{
+        engine.setValue(this.group, "jog", newVal * this.bendScale);
       }
     } else {
       /*
@@ -273,10 +267,7 @@ class ToucuhMixxxJog extends components.Encoder {
       this may need revisting
       */
       var speed = (this.isShifted) ? this.searchSpeedFast : this.searchSpeedSlow;
-      if (value == 0) {
-        speed *= -1;
-      }
-      engine.setValue(this.group, 'jog', speed);
+      engine.setValue(this.group, 'jog', newVal * speed);
     }
   }
 
