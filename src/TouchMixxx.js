@@ -178,8 +178,9 @@ class ToucuhMixxxJog extends components.Encoder {
     super(options);
     this.mode = "track";
     this.jogTimer = 0;
+    this.timedOut = false
     this.rateTimeout = 200;
-    this.browseTimeout = 100;
+    this.browseTimeout = 75;
     this.searchSpeedSlow = 1;
     this.searchSpeedFast = 3;
     this.scratchRate = 1;
@@ -212,10 +213,10 @@ class ToucuhMixxxJog extends components.Encoder {
   };
 
   browseMode(value) {
-    if (this.jogTimer) return; // we are timed out return
-
+    if ( this.timedOut ) return; // we are timed out return
+ 
     this.jogTimer = engine.beginTimer(this.browseTimeout, () => {
-      this.jogTimer = undefined;
+      this.timedOut = false
     }, true); //one shot
 
     if (value == 0) {
@@ -230,13 +231,16 @@ class ToucuhMixxxJog extends components.Encoder {
       } else {
         engine.setValue('[Library]', 'MoveUp', true);
       }
+        this.timedOut = true
     } else {
       if (this.isShifted) {
         engine.setValue('[Library]', 'MoveFocusForward', true);
       } else {
         engine.setValue('[Library]', 'MoveDown', true);
       }
+         this.timedOut = true
     }
+  
   }
 
   trackMode(value) {
@@ -250,15 +254,14 @@ class ToucuhMixxxJog extends components.Encoder {
         engine.scratchEnable(deck, 128, 33 + 1 / 3, this.alpha, this.beta);
         engine.scratchTick(deck, scratchValue);
       } else {
-        if (this.jogTimer !== 0) return; // we are timed out return
-
-        var action = (value) ? 'rate_temp_up' : 'rate_temp_down';
-        this.jogTimer = engine.beginTimer(this.rateTimeout, function () {
-          this.jogTimer = 0;
-          engine.setValue(this.group, 'rate_temp_down', false);
-          engine.setValue(this.group, 'rate_temp_up', false);
-        }, true); //one shot
-
+        if (this.timedOut) return; // we are timed out return
+          var action = (value) ? 'rate_temp_up' : 'rate_temp_down';
+          this.jogTimer = engine.beginTimer(this.rateTimeout, function () {
+            this.timedOut = false
+            engine.setValue(this.group, 'rate_temp_down', false);
+            engine.setValue(this.group, 'rate_temp_up', false);
+          }, true); //one shot
+        this.timedOut = true
         engine.setValue(this.group, action, true);
       }
     } else {
