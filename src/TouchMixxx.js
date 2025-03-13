@@ -183,55 +183,30 @@ class TouchMixxxContainer{
 class TouchMixxxPot extends components.Pot{
   constructor(options){
     super(options)
-    this.centerZero = options.centerZero || false;
     this.updateLock = false;
-    this.timer = 0;
+    this.timer = undefined;
     this.updateLockDelay = 500;
+    this.hiRes = options.hiRes || false
+    this.centerZero = options.centerZero || false;
+
   }
   
-  input(channel, control, value, status, group)
+  outValueScale(value)
   {
-    this.updateLock = true;
-    // components.Pot.prototype.input.call(this,channel, control, value, status, group);
-    super.input(channel, control, value, status, group)
+    //the eq controls ( and others ? ) seem to have a 0-2 range rather than 0-1
+    //and we need 0-1 for TouchOSC. Make these configurable
+    console.log(value)
 
-    if (this.timer !== 0)
-    {
-      engine.stopTimer(this.timer);
+    if(this.hiRes){
+      return value * 0.25 * this.max
+    }
+    // center zero control from Mixxx give us -1 / +1 range but we need 0-1
+    if(this.centerZero){
+      value = (value + 1) / 2;
+      return value * this.max;
     }
 
-    this.timer = engine.beginTimer(this.updateLockDelay, function() {
-      this.updateLock = false;
-      this.timer = 0;
-    },true);
-  };
-
-  outValueScale (value)
-  {
-      //rate values range -1 to 1 so we need to scale them to 0 to 1
-      if ( this.centerZero )
-      {
-        value = (value + 1) / 2;
-        return value * this.max;
-      }else{
-        // return components.Pot.prototype.outValueScale.call(this,value);
-        return this.outValueScale(value);
-      }
-  };
-
-  output(value, group, control)
-  {
-    if (! this.updateLock ) {
-      /* based on midi-components-0.0.js this should be sending out outValueScale() as per the other components
-        however the EQ knobs appear to set value between 0 - 4 when triggered ( we trigger to update the page on TouchOSC )
-        so we are getting the paremeer direct and scaling here
-      */
-     this.send(this.inGetParameter() * this.max);
-
-   ///  this.send(this.outValueScale()  );
-      }else{
-         //print("updatelocked");
-      }
+    return value * this.max
   };
 
   connect()
@@ -240,7 +215,7 @@ class TouchMixxxPot extends components.Pot{
           undefined !== this.outKey &&
           undefined !== this.output &&
           typeof this.output === 'function') {
-          this.connections[0] = engine.makeConnection(this.group, this.outKey, this.output);
+          this.connections[0] = engine.makeConnection(this.group, this.outKey, this.output.bind(this));
       }
   };
 
@@ -250,21 +225,21 @@ class TouchMixxxPot extends components.Pot{
   so we reinstate it for our virtual pots
   */
 
-  trigger()
-  {
-   if ( this.timer !== 0)
-   {
-    engine.stopTimer(this.timer);
-    this.updateLock = false;
-    this.timer = 0;
-   }
+  // trigger()
+  // {
+  //  if ( this.timer !== 0)
+  //  {
+  //   engine.stopTimer(this.timer);
+  //   this.updateLock = false;
+  //   this.timer = 0;
+  //  }
 
-    if (this.connections[0] !== undefined) {
-        this.connections.forEach(function (conn) {
-            conn.trigger();
-        });
-    }
-  };
+  //   if (this.connections[0] !== undefined) {
+  //       this.connections.forEach(function (conn) {
+  //           conn.trigger();
+  //       });
+  //   }
+  // };
 
 }
 
@@ -586,7 +561,7 @@ class TouchMixxxPadBank extends TouchMixxxContainer{
     for (var padNumber = 0; padNumber < this.numberOfPads; padNumber++) {
       var pad = this.addPad(padNumber, {
           hotCue: padNumber + 1,
-          outKey: 'hotcue_' + (padNumber + 1) + '_enabled', // need this to force conenction
+          outKey: 'hotcue_' + (padNumber + 1) + '_status', // need this to force conenction
           unshift: function()
           {
             this.inKey = 'hotcue_' + this.hotCue+ '_activate';
@@ -744,15 +719,18 @@ class TouchMixxxMaster{
       samplerFx1Enable: 0x26,samplerFx2Enable: 0x27,
     }
 
+    //BASIC KNOBS
     for( let knob in this.ctrls.knobs)
     {
       this[knob] = new TouchMixxxPot({
         midi: [0xB0 + this.midiChannel, this.ctrls.knobs[knob]],
         key: knob,
         group: this.group,
+        hiRes: true
       });
     }
 
+    //HEADPHONE MIX
     this.headMix = new TouchMixxxPot({
       midi: [0xB0 + this.midiChannel, this.ctrls.headMix],
       key: 'headMix',
@@ -760,6 +738,7 @@ class TouchMixxxMaster{
       centerZero: true,
     });
 
+    //CROSS FADER
     this.crossfader = new TouchMixxxPot({
       midi: [0xB0 + this.midiChannel, this.ctrls.crossfader],
       key: 'crossfader',
@@ -767,6 +746,7 @@ class TouchMixxxMaster{
       centerZero: true,
     });
 
+    //MASTER FX 1 ENABLE
     this.fx1Enable = new components.Button({
       midi: [0xB0 + this.midiChannel, this.ctrls.fx1Enable],
       group: '[EffectRack1_EffectUnit1]',
@@ -774,12 +754,14 @@ class TouchMixxxMaster{
       key: 'group_' + this.group + '_enable',
     });
 
+   //MASTER FX 1 MIX -- on the XY pad
     this.fxMix1 = new TouchMixxxPot({
       midi: [0xB0 + this.midiChannel, this.ctrls.fxMix1],
       key: 'mix',
       group: '[EffectRack1_EffectUnit1]',
     });
 
+      //MASTER FX 2 ENABLE
     this.fx2Enable = new components.Button({
       midi: [0xB0 + this.midiChannel, this.ctrls.fx2Enable],
       group: '[EffectRack1_EffectUnit2]',
@@ -787,13 +769,14 @@ class TouchMixxxMaster{
       key: 'group_' + this.group + '_enable',
     });
 
+       //MASTER FX 1 MIX -- on the XY pad
     this.fxMix2 = new TouchMixxxPot({
       midi: [0xB0 + this.midiChannel, this.ctrls.fxMix2],
       key: 'mix',
       group: '[EffectRack1_EffectUnit2]',
     });
 
-  /* adjusts the volume for all samplers*/
+  //SAMPLE VOLUMNE
     this.sampleVolume = new TouchMixxxPot({
       midi: [0xB0 + this.midiChannel, this.ctrls.sampleVolume],
       key: 'volume',
@@ -808,7 +791,7 @@ class TouchMixxxMaster{
       }
     });
 
-  /* toggle FX 1 for all samplers */
+  //SAMPLE FX 1 ENABLE
     this.samplerFx1Enable = new components.Button({
       midi: [0xB0 + this.midiChannel, this.ctrls.samplerFx1Enable],
       group: '[EffectRack1_EffectUnit1]',
@@ -828,7 +811,7 @@ class TouchMixxxMaster{
       }
     });
 
-  /* toggle FX 2 for all samplers */
+   //SAMPLE FX 2 ENABLE
     this.samplerFx2Enable = new components.Button({
       midi: [0xB0 + this.midiChannel, this.ctrls.samplerFx2Enable],
       group: '[EffectRack1_EffectUnit2]',
@@ -847,7 +830,7 @@ class TouchMixxxMaster{
       }
       }
     });
-
+//VU METER
     this.vumeter = new TouchMixxxVUMeter({
       midiL:[0xB0 + this.midiChannel, this.ctrls.VUMeterL],
       midiR:[0xB0 + this.midiChannel, this.ctrls.VUMeterR],
@@ -873,23 +856,31 @@ class TouchMixxxDeck extends TouchMixxxContainer{
       simpleButtons: {rate_temp_down: 0x0C, rate_temp_up: 0x0D, rate_perm_down_small: 0x0E, rate_perm_up_small: 0x0F,},
       simpleToggles: {pfl: 0x03, quantize:0x28 ,keylock:0x29, slip_enabled: 0x2A,},
       eq:{parameter1: 0x06,parameter2: 0x07,parameter3: 0x08,},
-      qfx:{super1:0x09},browse: 0x10, load: 0x11, VUMeterL: 0x12,VUMeterR: 0x13,
+      qfx:{super1:0x09},
+      browse: 0x10, 
+      load: 0x11, 
+      VUMeterL: 0x12,
+      VUMeterR: 0x13,
       padModeOffset:0x14/* 0x1B */, padOffset:0x1C /*0x23 */,
-      fx1Enable: 0x24, fx2Enable: 0x25,
-      orientation: 0x26, loopExit: 0x27,
+      fx1Enable: 0x24, 
+      fx2Enable: 0x25,
+      orientation: 0x26, 
+      loopExit: 0x27,
     };
   
-
+    //PLAY
     this.addComponent('play', new components.PlayButton({
       midi: [0xB0 + midiChannel, this.ctrlNumbers.play],
       group: this.group,
     }));
 
+    //CUE
     this.addComponent('cue', new components.CueButton({
       midi: [0xB0 + midiChannel, this.ctrlNumbers.cue],
       group: this.group,
     }));
 
+    //SYNC
     this.addComponent('sync', new components.SyncButton({
       midi: [0xB0 + midiChannel, this.ctrlNumbers.sync],
       group: this.group,
@@ -903,6 +894,7 @@ class TouchMixxxDeck extends TouchMixxxContainer{
       upper:2,
     }));
 
+    //LOOP
     this.addComponent('loopExit', new components.Button({
       midi: [0xB0 + midiChannel, this.ctrlNumbers.loopExit],
       group: this.group,
@@ -911,6 +903,7 @@ class TouchMixxxDeck extends TouchMixxxContainer{
       type: components.Button.prototype.types.toggle,
     }));
 
+    // RATE aka PITCH FADER
     this.addComponent('rate', new TouchMixxxPot({
           midi: [0xB0 + midiChannel, this.ctrlNumbers.rate],
           key: 'rate',
@@ -918,6 +911,7 @@ class TouchMixxxDeck extends TouchMixxxContainer{
           centerZero: true,
     }));
 
+    //FX ENABLE
     this.addComponent('fx1Enable', new components.Button({
       midi: [0xB0 + this.midiChannel, this.ctrlNumbers.fx1Enable],
       group: '[EffectRack1_EffectUnit1]',
@@ -932,16 +926,18 @@ class TouchMixxxDeck extends TouchMixxxContainer{
       key: 'group_' + this.group + '_enable',
     }));
 
-
+    //SIMPLE KNOBS
     for(let knob in this.ctrlNumbers.simpleKnobs)
     {
       this.addComponent(knob, new TouchMixxxPot({
           midi: [0xB0 + midiChannel, this.ctrlNumbers.simpleKnobs[knob]],
           key: knob,
           group: this.group,
+          hiRes: (knob == "pregain")
       }));
     }
 
+    //SIMPLE BUTTONS
     for(let button in this.ctrlNumbers.simpleButtons)
     {
       this.addComponent(button, new components.Button({
@@ -951,6 +947,7 @@ class TouchMixxxDeck extends TouchMixxxContainer{
       }));
     }
 
+    //SIMPLE TOGGLES 
     for(let button in this.ctrlNumbers.simpleToggles)
     {
       this.addComponent(button, new components.Button({
@@ -961,6 +958,7 @@ class TouchMixxxDeck extends TouchMixxxContainer{
       }));
     }
 
+    // EQ KNOBS
     this.addComponent('eq', new TouchMixxxContainer(this.group));
     var parameterNumber = 1;
     for(let parameter in this.ctrlNumbers.eq)
@@ -969,6 +967,7 @@ class TouchMixxxDeck extends TouchMixxxContainer{
            midi: [0xB0 + midiChannel, this.ctrlNumbers.eq[parameter]],
            group: '[EqualizerRack1_' + this.group + '_Effect1]',
            key: "parameter" + parameterNumber++ ,
+           hiRes: true
        }));
     }
 
