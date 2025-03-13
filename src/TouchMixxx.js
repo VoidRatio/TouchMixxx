@@ -340,7 +340,7 @@ class TouchMixxxVUMeter {
     this.connections = [];
 
     if (options.midiR === undefined) {
-      this.connections[0] = engine.makeConnection(options.group, 'VuMeter', function (value) {
+      this.connections[0] = engine.makeConnection(options.group, 'vu_meter', function (value) {
         midi.sendShortMsg(options.midiL[0], options.midiL[1], value * 128);
       });
     } else {
@@ -617,8 +617,8 @@ class TouchMixxxMaster {
       shift: 0x08,
       sampleVolume: 0x05,
       loadPage: 0x0A,
-      VUMeterL: 0x12,
-      VUMeterR: 0x13,
+      vu_meter_left: 0x12,
+      vu_meter_right: 0x13,
       fx1Enable: 0x24,
       fx2Enable: 0x25,
       samplerFx1Enable: 0x26,
@@ -729,8 +729,8 @@ class TouchMixxxMaster {
     });
     //VU METER
     this.vumeter = new TouchMixxxVUMeter({
-      midiL: [0xB0 + this.midiChannel, this.ctrls.VUMeterL],
-      midiR: [0xB0 + this.midiChannel, this.ctrls.VUMeterR],
+      midiL: [0xB0 + this.midiChannel, this.ctrls.vu_meter_left],
+      midiR: [0xB0 + this.midiChannel, this.ctrls.vu_meter_right],
       group: this.group,
     });
   };
@@ -778,8 +778,8 @@ class TouchMixxxDeck extends TouchMixxxContainer {
       },
       browse: 0x10,
       load: 0x11,
-      VUMeterL: 0x12,
-      VUMeterR: 0x13,
+      vu_meter_left: 0x12,
+      vu_meter_right: 0x13,
       padModeOffset: 0x14 /* 0x1B */ ,
       padOffset: 0x1C /*0x23 */ ,
       fx1Enable: 0x24,
@@ -952,7 +952,7 @@ class TouchMixxxDeck extends TouchMixxxContainer {
     }));
 
     this.addComponent("vumeter", new TouchMixxxVUMeter({
-      midiL: [0xB0 + midiChannel, this.ctrlNumbers.VUMeterL],
+      midiL: [0xB0 + midiChannel, this.ctrlNumbers.vu_meter_left],
       group: this.group,
     }));
 
