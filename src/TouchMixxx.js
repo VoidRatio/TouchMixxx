@@ -1,3 +1,32 @@
+/**
+*    The TouchMixxx library allows the TouchMixxx controller layout to be used with Mixxx
+*    Details and the latest version are available at https://github.com/VoidRatio/TouchMixxx
+*
+*    Copyright (C) 2020-2025  VoidRatio <info@voidratio.co.uk>
+*
+*    This program is free software: you can redistribute it and/or modify
+*    it under the terms of the GNU General Public License as published by
+*    the Free Software Foundation, either version 3 of the License, or
+*    (at your option) any later version.
+*
+*    This program is distributed in the hope that it will be useful,
+*    but WITHOUT ANY WARRANTY; without even the implied warranty of
+*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*    GNU General Public License for more details.
+*
+*    You should have received a copy of the GNU General Public License
+*    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+*   This library depends on Components JS library for Mixxx, which is Copyright
+*   Be <be.0@gmx.com> and licensed under the GNU General Public License.
+*   Documentation is on the Mixxx wiki at http://mixxx.org/wiki/doku.php/components_js
+*
+*   This library depends on Lodash, which is copyright JS Foundation
+*   and other contributors and licensed under the MIT license. Refer to
+*   the lodash.mixxx.js file for details.
+*
+**/
+
 var TouchMixxx = {
   numberOfDecks: 4,
   master: {},
