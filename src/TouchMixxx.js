@@ -452,7 +452,7 @@ class TouchMixxxPadBank extends TouchMixxxContainer {
       key: 'loop_move_1_forward',
     }).trigger();
     this.addPad(2, {
-      key: 'loop_double',
+      key: 'loop_double', // this ony seem to work if quantise is set when the loop start and end are set
     }).trigger();
     this.addPad(3, {
       inKey: 'reloop_toggle',
@@ -465,7 +465,7 @@ class TouchMixxxPadBank extends TouchMixxxContainer {
       key: 'loop_move_1_backward',
     }).trigger();
     this.addPad(6, {
-      key: 'loop_halve',
+      key: 'loop_halve', // this ony seem to work if quantise is set when the loop start and end are set
     }).trigger();
     //pad seven is unused but we need a null button to over write the pad that was created for the previous mode
     this.addPad(7, {
@@ -517,7 +517,7 @@ class TouchMixxxPadBank extends TouchMixxxContainer {
         },
         connect: function () {
           this.connections[0] = engine.makeConnection(this.group, 'beatjump_' + this.jumpSize + '_forward', this.output.bind(this));
-          this.connections[1] = engine.makeConnection(this.group, 'beatjump_' + this.jumpSize + '_backward', this.output.bind(this));
+          this.connections[1] = engine.makeConnection(this.group, 'beatjump_' + this.jumpSize + '_backward', this.output.bind);
         }
       }).trigger();
       jumpSize *= 2;
