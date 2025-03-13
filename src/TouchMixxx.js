@@ -846,7 +846,7 @@ class TouchMixxxDeck extends TouchMixxxContainer {
         midi: [0xB0 + midiChannel, this.ctrlNumbers.simpleKnobs[knob]],
         key: knob,
         group: this.group,
-        hiRes: (knob == "pregain")
+        hiRes: true //(knob == "pregain")
       }));
     }
 
