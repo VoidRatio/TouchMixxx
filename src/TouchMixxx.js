@@ -516,8 +516,8 @@ class TouchMixxxPadBank extends TouchMixxxContainer {
           this.outKey = 'beatjump_' + this.jumpSize + '_forward';
         },
         connect: function () {
-          this.connections[0] = engine.makeConnection(this.group, 'beatjump_' + this.jumpSize + '_forward', this.output);
-          this.connections[1] = engine.makeConnection(this.group, 'beatjump_' + this.jumpSize + '_backward', this.output);
+          this.connections[0] = engine.makeConnection(this.group, 'beatjump_' + this.jumpSize + '_forward', this.output.bind(this));
+          this.connections[1] = engine.makeConnection(this.group, 'beatjump_' + this.jumpSize + '_backward', this.output.bind(this));
         }
       }).trigger();
       jumpSize *= 2;
