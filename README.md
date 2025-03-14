@@ -4,7 +4,7 @@ TouchMixxx is a [TouchOSC](https://hexler.net/products/touchosc) layout designed
 
 To make use of TouchMixxx you'll need and iPad Mini ( or better ) a copy of the excellent, and free, [Mixxx DJ Software](https://www.mixxx.org) and the [TouchOSC](https://hexler.net/products/touchosc) app.
 
-![alt tag](https://github.com/VoidRatio/TouchMixxx/blob/master/TouchMixxx_4DeckMixer.jpg "TocuhMixxx 4Deck iPad controller for Mixxx")
+![alt tag](https://github.com/VoidRatio/TouchMixxx/blob/master/images/TouchMixxx_4DeckMixer.jpg "TocuhMixxx 4Deck iPad controller for Mixxx")
 
 ##### Important:
 * TouchMixxx and Mixxx are free but you'll need to pay for TouchOSC, that said it's a great app and useful for controlling all sorts of midi enabled software so well worth the price of and over priced coffee.
@@ -46,7 +46,7 @@ If you are familiar with Mixxx or other DJ software most of the controls should 
 * Top left and right you'll find duplicate SHIFT buttons these allow access to _second functions_ as detailed below
 * Below the 'Jog Wheel' are 8 Pads that allow, setting / accessing Hot Cues, Beat Jump, Setting Loops, and triggering Samples - 8 per deck.
 
-![alt tag](https://github.com/VoidRatio/TouchMixxx/blob/master/TouchMixxx_Deck.jpg "TouchMixxx Deck")
+![alt tag](https://github.com/VoidRatio/TouchMixxx/blob/master/images/TouchMixxx_Deck.jpg "TouchMixxx Deck")
 
 ##### Pads
 * The _pad mode_ is selected but tapping the corresponding buttons directly above the pads
@@ -76,7 +76,7 @@ If you are familiar with Mixxx or other DJ software most of the controls should 
 * The XY pad adjusts the FX mix of the two FX racks
 * Either side of the crossfader are switches that allow the configuration of the four decks to the left, right of centre of the crossfader
 
-![alt tag](https://github.com/VoidRatio/TouchMixxx/blob/master/TouchMixxx_Mixer.jpg "TouchMixxx Mixer")
+![alt tag](https://github.com/VoidRatio/TouchMixxx/blob/master/images/TouchMixxx_Mixer.jpg "TouchMixxx Mixer")
 
 #### FX Racks
 Currently the effects in the FX racks cannot be configured via the TouchMixxx interface but once configured the two racks can be enabled for each deck, the Samplers and the Master output. The XY pad is used to mix the effect wet / dry mix for channels on which they are active
