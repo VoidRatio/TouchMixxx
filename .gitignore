@@ -1,7 +1,2 @@
-.DS_Store
-*.sh
-scripts/*
-build/*
-dist/*
-release/*
-Licence.txt
+ .DS_Store
+*.zip
