@@ -1,13 +1,13 @@
 # TouchMixxx
 
-TouchMixxx is a [TouchOSC](https://hexler.net/products/touchosc) layout designed to control the Mixxx DJ software. TouchMixxx turns your iPad in to a 4 deck DJ controller giving you hands on performance controls for the key Mixxx controls.
+TouchMixxx is a [TouchOSC MK1](https://hexler.net/touchosc-mk1) layout designed to control the Mixxx DJ software. TouchMixxx turns your iPad in to a 4 deck DJ controller giving you hands on performance controls for the key Mixxx controls.
 
 ![TouchMixxx 4Deck iPad controller for Mixxx](https://github.com/VoidRatio/TouchMixxx/blob/master/images/TouchMixxx_4DeckMixer.jpg "TouchMixxx 4Deck iPad controller for Mixxx")
 
 ##### Important:
 * TouchMixxx and Mixxx are free, but you'll need to pay for TouchOSC MK1. That said, it's a great app and useful for controlling all sorts of MIDI-enabled software, so well worth the price of an overpriced coffee.
 * Mixxx is available for macOS, Windows, and Linux, and TouchOSC MK1 is available for Android and iOS. However, TouchMixxx has not been tested with all these platforms. If it works, let me know; if it doesn't, let me know, and I'll see if I can fix it.
-* TouchMixxx was designed for *TouchOSC MK1* and has not been tested with the new version of TouchOSC. As of March 2025, Hexler is still supporting [TouchOSC MK1](https://hexler.net/products/touchosc).
+* TouchMixxx was designed for *TouchOSC MK1* and has not been tested with the new version of TouchOSC. As of March 2025, Hexler is still supporting [TouchOSC MK1](https://hexler.net/touchosc-mk1).
 
 ---
 
@@ -16,7 +16,7 @@ TouchMixxx is a [TouchOSC](https://hexler.net/products/touchosc) layout designed
 ### 1. Install and configure TouchOSC
 
 * On your iPad, head over to the Apple App Store and purchase [TouchOSC MK1](https://apps.apple.com/app/touchosc/id288120394).
-* On your Mac, download and install [TouchOSC Bridge](https://hexler.net/products/touchosc#downloads)  — _this allows the TouchOSC app to communicate with your Mac and control your MIDI-enabled software and devices._
+* On your Mac, download and install [TouchOSC Bridge](https://hexler.net/touchosc-mk1#resources)  — _this allows the TouchOSC app to communicate with your Mac and control your MIDI-enabled software and devices._
 * Open TouchOSC Bridge on your Mac.
 * To copy the TouchOSC layout to your iPad, connect your iPad to your Mac with a USB cable and open it in Finder.
 * Open the **Files** tab on your iPad and drag **TouchMixxx_v*.*.touchosc** onto the TouchOSC app.
